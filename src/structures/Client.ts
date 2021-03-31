@@ -13,11 +13,6 @@ export default class Client extends Discord.Client {
   name = "Example bot";
   commands: Collection<string, ICommand> = new Collection();
 
-  private registerCommandOptions = {
-    dir: "",
-    inheritCategoryFromDirectory: false,
-  };
-
   constructor(prefix: string, options?: ClientOptions) {
     super(options);
     this.prefix = prefix;
