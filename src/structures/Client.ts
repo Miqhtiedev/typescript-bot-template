@@ -51,9 +51,7 @@ export default class Client extends Discord.Client {
   }
 
   registerCommands(commandsDir: string, inheritCategoryFromDirectory?: boolean) {
-    this.registerCommandOptions.dir = commandsDir;
     if (!inheritCategoryFromDirectory) inheritCategoryFromDirectory = false;
-    this.registerCommandOptions.inheritCategoryFromDirectory = inheritCategoryFromDirectory;
 
     let parentName: string | undefined = undefined;
 
