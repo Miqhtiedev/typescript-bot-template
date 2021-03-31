@@ -199,11 +199,6 @@ export default class Client extends Discord.Client {
     });
   }
 
-  reloadCommands() {
-    this.commands.clear();
-    this.registerCommands(this.registerCommandOptions.dir, this.registerCommandOptions.inheritCategoryFromDirectory);
-  }
-
   say(channel: Channel, content: APIMessageContentResolvable | (MessageOptions & { split?: false }) | MessageAdditions) {
     if (channel instanceof VoiceChannel) return;
     (channel as TextChannel).send(content).catch((e) => {
