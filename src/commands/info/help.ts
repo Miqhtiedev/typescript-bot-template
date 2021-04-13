@@ -1,5 +1,4 @@
 import { Collection, MessageEmbed } from "discord.js";
-// import Client from "../../structures/Client";
 import { ICommand, RunCallback } from "../../structures/Interfaces";
 
 function HelpCommand(): ICommand {
@@ -15,10 +14,10 @@ function HelpCommand(): ICommand {
     if (args.length === 0) {
       embed.setTitle("Help | " + client.user?.username);
       categories.forEach((category) => {
-        embed.addField(reFormat(category), getFormattedCommandsInCategory(category, client.commands));
+        embed.addField(reFormat(category), getFormattedCommandsInCategory(category, client.commands), true);
       });
       embed.setFooter(`Do ${client.prefix}help <command> for help with a command!`);
-      client.say(message.channel, embed);
+      message.channel.send(embed);
       return;
     } else if (args[0]) {
       const commandName = args[0]?.toLowerCase();
@@ -35,8 +34,8 @@ function HelpCommand(): ICommand {
         }
         if (!command || (!command.subCommandSettings?.defaultSubCommand && !command.settings)) {
           embed.setTitle(`Help | ${commandName}`);
-          embed.addField("Subcommands: ", `\`${command?.subCommands}\``);
-          client.say(message.channel, embed);
+          embed.addField("Subcommands: ", getFormattedSubcommands(command));
+          message.channel.send(embed);
           return;
         }
       }
@@ -47,7 +46,7 @@ function HelpCommand(): ICommand {
       embed.addField("Usage:", `\`${client.prefix + command.settings?.usage}\``, true);
       embed.setFooter("<> = Required | [] = Optional");
 
-      client.say(message.channel, embed);
+      message.channel.send(embed);
     }
   };
 
@@ -62,11 +61,23 @@ function HelpCommand(): ICommand {
 }
 
 function getFormattedCommandsInCategory(name: string, commands: Collection<string, ICommand>): string {
-  let msg = "";
+  let msg = "```\n";
   for (const cmd of commands) {
-    if (cmd[1].category === name) msg += `\`${cmd[0]}\`, `;
+    if (cmd[1].category === name) msg += `${cmd[0]}\n`;
   }
-  return msg.slice(0, -2); // Remove extra comma
+  msg += "```";
+  return msg;
+}
+
+function getFormattedSubcommands(command: ICommand | undefined): string {
+  let msg = "```\n";
+  for (const cmd of command?.subCommands!) {
+    msg += `${cmd[0]} | `;
+    if (cmd[1].settings) msg += cmd[1].settings.description;
+    msg += "\n";
+  }
+  msg += "```";
+  return msg;
 }
 
 function reFormat(str: string): string {
