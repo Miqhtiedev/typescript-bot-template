@@ -95,14 +95,16 @@ export default class Client extends Discord.Client {
           const subcommands = walk(path.join(dir, file));
 
           let options: ISubCommandSettings = defaultSettings;
-          try {
-            options = require(path.join(dir, parentName, "subcommandSettings.ts")).default;
-          } catch (e) {
+          const parentFiles = fs.readdirSync(path.join(dir, parentName));
+          const subcommandSettings = parentFiles.find((f) => f.toLowerCase().startsWith("subcommandsettings"));
+          if (subcommandSettings) {
+            options = require(path.join(dir, parentName, subcommandSettings)).default;
+          } else {
             logger.warn(`No subcommandSettings.ts file found for subcommand: ${name}, using default settings!`);
           }
 
           let defaultSubCommand: string | undefined;
-          if (files.includes(name + ".ts")) {
+          if (files.includes(name + ".ts") || files.includes(name + ".js")) {
             defaultSubCommand = name;
             subcommands.set(name, require(path.join(dir, name)).default);
           } else {
@@ -120,8 +122,10 @@ export default class Client extends Discord.Client {
               defaultSubCommand: defaultSubCommand,
             },
             subCommands: subcommands,
-            run: (client, message, args) => {
-              const subcommandName = args.shift()?.toLowerCase();
+            run: async (client, message, args) => {
+              let subcommandName: string | undefined = undefined;
+              const newArgs = args.slice(0); // prevent args from being shifted
+              if (command.subCommands?.has(newArgs.shift()?.toLowerCase() as string)) subcommandName = args.shift()?.toLowerCase();
               let subcommand: ICommand | undefined = undefined;
 
               let options = command.subCommandSettings;
@@ -169,7 +173,6 @@ export default class Client extends Discord.Client {
           commands.set(name, command);
         }
       });
-
       return commands;
     }
   }
