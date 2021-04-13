@@ -57,10 +57,13 @@ export default class Client extends Discord.Client {
 
     if (inheritCategoryFromDirectory) {
       fs.readdirSync(commandsDir).forEach((directory) => {
-        const commands = walk(path.join(commandsDir, directory), directory);
-        commands.forEach((v, k) => {
-          this.commands.set(k, v);
-        });
+        const stats = fs.statSync(path.join(commandsDir, directory));
+        if (stats.isDirectory()) {
+          const commands = walk(path.join(commandsDir, directory), directory);
+          commands.forEach((v, k) => {
+            this.commands.set(k, v);
+          });
+        }
       });
     } else this.commands = walk(commandsDir);
 
